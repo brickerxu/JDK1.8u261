@@ -275,11 +275,18 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /**
      * Basic hash bin node, used for most entries.  (See below for
      * TreeNode subclass, and in LinkedHashMap for its Entry subclass.)
+     *
+     * 内部静态类
+     * HashMap底层的节点类
      */
     static class Node<K,V> implements Map.Entry<K,V> {
+        // key的hash值
         final int hash;
+        // key值
         final K key;
+        // value值
         V value;
+        // 链表结构中下一个节点的指向
         Node<K,V> next;
 
         Node(int hash, K key, V value, Node<K,V> next) {
@@ -333,9 +340,23 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * cheapest possible way to reduce systematic lossage, as well as
      * to incorporate impact of the highest bits that would otherwise
      * never be used in index calculations because of table bounds.
+     *
+     * hash计算方法
      */
     static final int hash(Object key) {
         int h;
+        /**
+         * 先判断key是否为null
+         * 1.如果为null，则直接返回0，
+         *  所以HashMap的key是可以使用null的
+         *  而且当key为null，会存入数组中下标为0的位置
+         * 2.如果不为null，则进行hash运算
+         *  1).先算出key的hashcode
+         *  2).然后将hashcode右移16位
+         *      - 即将该值转换为二进制，然后丢弃后边的16位，将前边的后移，位数不够补0
+         *  3). 将上边的两个值进行异或运算，然后返回
+         *  这一步的目的是: 让hash值的高位参与运算，增加数据的散列
+         */
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 
@@ -374,6 +395,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * Returns a power of two size for the given target capacity.
+     *
+     * 根据指定的数组大小 ，计算出合适的数组大小
+     * 即计算出2的幂次方
+     * @param cap 构造器传入的Map数组的初始大小
      */
     static final int tableSizeFor(int cap) {
         int n = cap - 1;
