@@ -465,6 +465,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * The next size value at which to resize (capacity * load factor).
      *
      * @serial
+     *
+     * 阈值 = 表大小 * 加载因子
+     * 当表大小超过该阈值，则进行扩容处理
      */
     // (The javadoc description is true upon serialization.
     // Additionally, if the table array has not been allocated, this
@@ -476,6 +479,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * The load factor for the hash table.
      *
      * @serial
+     *
+     * 加载因子
      */
     final float loadFactor;
 
@@ -819,24 +824,44 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * with a power of two offset in the new table.
      *
      * @return the table
+     *
+     * 初始化及扩容
+     * HashMap的初始化工作并不是在实例化的时候完成
+     * 而是在put数据调用本函数时完成
      */
     final Node<K,V>[] resize() {
+        // 拷贝原来的数组
         Node<K,V>[] oldTab = table;
+        // 原来数组的长度
         int oldCap = (oldTab == null) ? 0 : oldTab.length;
+        // 旧的阈值
         int oldThr = threshold;
+        /**
+         * newCap: 新表长度
+         * newThr: 新的阈值
+         */
         int newCap, newThr = 0;
+        // 判断旧表长度
         if (oldCap > 0) {
+            // 当旧表长度已经等于或者超过最大值，则阈值也设置为最大，并将旧表返回，不做扩容处理
             if (oldCap >= MAXIMUM_CAPACITY) {
                 threshold = Integer.MAX_VALUE;
                 return oldTab;
             }
+            // 否则尝试进行扩容
             else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
                      oldCap >= DEFAULT_INITIAL_CAPACITY)
                 newThr = oldThr << 1; // double threshold
         }
+        /**
+         * 旧表长度小于0
+         * 并且阈值大于0
+         * 则给新的表长度赋值为旧的阈值
+         */
         else if (oldThr > 0) // initial capacity was placed in threshold
             newCap = oldThr;
         else {               // zero initial threshold signifies using defaults
+            // 否则两者都小于0的时候，进行常规的初始化大小
             newCap = DEFAULT_INITIAL_CAPACITY;
             newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
         }
@@ -846,6 +871,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                       (int)ft : Integer.MAX_VALUE);
         }
         threshold = newThr;
+        /**
+         * 初始化新表数组
+         * 并将原表中数组映射到新表
+         */
         @SuppressWarnings({"rawtypes","unchecked"})
         Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
         table = newTab;
