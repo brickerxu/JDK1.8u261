@@ -1011,6 +1011,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
 
     /** Implementation for put and putIfAbsent */
     final V putVal(K key, V value, boolean onlyIfAbsent) {
+        // 不允许key或者value为null，这点和HashMap有区别
         if (key == null || value == null) throw new NullPointerException();
         int hash = spread(key.hashCode());
         int binCount = 0;
@@ -1027,6 +1028,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 tab = helpTransfer(tab, f);
             else {
                 V oldVal = null;
+                // 1.8直接使用的synchronized来实现的分段锁
                 synchronized (f) {
                     if (tabAt(tab, i) == f) {
                         if (fh >= 0) {
